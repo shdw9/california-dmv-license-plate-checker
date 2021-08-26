@@ -82,7 +82,7 @@ async def check(ctx, arg):
     try:
         if(driver.find_element_by_xpath("/html/body/div[3]/div/main/div[2]/div[2]/form/div[1]/dl/dd[1]/div/img")):
             print("The license plate " + arg + " is available!")
-            #print(driver.find_element_by_xpath("/html/body/div[3]/div/main/div[2]/div[2]/form/div[1]/dl/dd[1]/div/img").get_attribute("src"))
+            #print(driver.find_element_by_xpath("/html/body/div[3]/div/main/div[2]/div[2]/form/div[1]/dl/dd[1]/div/img").get_attribute("src")) 
             embed2=discord.Embed(title="shdw's DMV - License Plate Checker", url="https://www.dmv.ca.gov/portal/vehicle-registration/license-plates-decals-and-placards/california-license-plates/order-special-interest-and-personalized-license-plates/", description="The license plate " + arg + " is available! :white_check_mark: ", color=discord.Color.green()).set_thumbnail(url=driver.find_element_by_xpath("/html/body/div[3]/div/main/div[2]/div[2]/form/div[1]/dl/dd[1]/div/img").get_attribute("src"))
             await message.edit(embed=embed2, content=f"It's available!")
             pass
