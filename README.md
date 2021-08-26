@@ -1,7 +1,7 @@
 ![cmdline](https://www.dmv.ca.gov/portal/wp-content/themes/dmv/assets/images/logo-ca-gov.svg) ![cmdline](https://www.dmv.ca.gov/portal/wp-content/themes/dmv/assets/images/logo-ca-dmv-white.svg)
 
 # california-license-plate-checker
-lets you check as many license plates via california dmv and tells you if they're available or not
+lets you check as many license plates via california dmv and tells you if they're available or not (note at ~200 checks dmv softbans you, you get unbanned after a few hours)
 
 # instructions
 download python, install the libraries, download chromedriver 
