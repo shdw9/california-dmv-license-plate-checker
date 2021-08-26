@@ -6,11 +6,10 @@ from selenium.webdriver.common.keys import Keys
 from colorama import Fore, init
 import os
 import warnings
-import discord
+#import discord #doesn't use discord
 from discord.ext import commands
 import time
 from time import sleep
-import requests
 
 init()
 init(convert=True)
