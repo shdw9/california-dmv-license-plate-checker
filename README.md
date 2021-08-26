@@ -10,4 +10,4 @@ discord bot: edit the TOKEN at the end of `discordbot.py`, the command is `!chec
 <br><br>txt reader: put names in `names.txt` and run the program, available names will be outputted via `availablenames.txt`
 
 # what i like to do 
-i like copy and pasting a whole list (whether that be anime character names, or synonyms of words with meanings, and putting them all in a .txt and running `txtreader.py`
+i like copy and pasting a whole list (whether that be anime character names, or synonyms of words with meanings, and putting them all in a .txt and run via `txtreader.py`
