@@ -1,3 +1,5 @@
+![cmdline](https://www.dmv.ca.gov/portal/wp-content/themes/dmv/assets/images/logo-ca-dmv-white.svg)
+
 # california-license-plate-checker
 lets you check as many license plates via california dmv and tells you if they're available or not
 
