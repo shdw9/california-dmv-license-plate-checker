@@ -52,5 +52,5 @@ if "The license plate number you have selected is no longer available. Please tr
     print("License plate " + toCheck + " is taken!")
     getImage(toCheck)
 else:
-    print("License plate " + toCheck + " is NOT taken!")
+    print("License plate " + toCheck + " is NOT taken! ")
     getImage(toCheck)
