@@ -73,7 +73,7 @@ def isAvailable(plate):
     # start pers
     sesh.post('https://www.dmv.ca.gov/wasapp/ipp2/startPers.do', headers=headers, data=data)
 
-    # process pers
+    # process pers, pulled a random licPlate and vin from autotrader
     data = {
         'imageSelected': 'none',
         'vehicleType': 'AUTO',
