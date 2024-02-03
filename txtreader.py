@@ -1,96 +1,128 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.common.keys import Keys
-from colorama import Fore, init
-import os
-import warnings
-#import discord #doesn't use discord
-from discord.ext import commands
-import time
-from time import sleep
+import requests
+from bs4 import BeautifulSoup
 
-init()
-init(convert=True)
+def processPlate(plateText):
+    data = {'kidsPlate': '', 'plateType': 'Z', 'plateLength': '7', 'plateNameLow': '1960 legacy'}
+    plateText = plateText.replace(" ","")
+    for x in range(7):
+        if x > len(plateText) - 1:
+            data["plateChar"+str(x)] = ""
+        else:
+            data["plateChar"+str(x)] = plateText[x]
 
-beingreplaced = "8JBZ269"
-last3vin = "695"
+    return data
 
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-options = Options()
-options.headless = True
-options.add_argument("--log-level=3")
-#options.add_argument('--headless')
-options.add_argument('--disable-gpu')
-options.add_experimental_option('excludeSwitches', ['enable-logging'])
+def genPlateImage(plateText):
+    url = "https://www.dmv.ca.gov/wasapp/ipp2/showPlateImage.do?backGroundCode=Z"
+    for x in range(7):
+        if x > len(plateText) - 1:
+            url  += "&imageFile="
+        else:
+            url += "&imageFile=" + plateText[x]
+    url += "&kidsPlate="
+    return url
 
-driver = webdriver.Chrome(ChromeDriverManager(version='91.0.4472.101').install(), options=options)
-os.system('cls')
+def isAvailable(plate):
+    plate = plate.upper()
 
-def check(plate):
-    if (len(plate) > 7):
-        print("")
-        return
-    driver.get("https://www.dmv.ca.gov/wasapp/ipp2/initPers.do")
-    sleep(2)
-    driver.find_element_by_xpath("/html/body/div[3]/div/main/div[2]/div[2]/form/div[1]/fieldset/ul/li/label").click()
-    sleep(1)
-    driver.find_element_by_xpath("/html/body/div[3]/div/main/div[2]/div[2]/form/div[2]/button").click()
-    sleep(1)
-    driver.find_element_by_xpath("//select[@name='vehicleType']/option[text()='Auto']").click()
-    driver.find_element_by_xpath("/html/body/div[3]/div/main/div[2]/div[2]/form/fieldset/div[2]/input").send_keys(beingreplaced)
-    driver.find_element_by_xpath("/html/body/div[3]/div/main/div[2]/div[2]/form/fieldset/div[4]/input").send_keys(last3vin)
-    driver.find_element_by_xpath("/html/body/div[3]/div/main/div[2]/div[2]/form/fieldset/div[5]/div[2]/label").click()
-    driver.find_element_by_xpath("/html/body/div[3]/div/main/div[2]/div[2]/form/fieldset/div[6]/div[2]/label").click()
-    sleep(1)
-    driver.find_element_by_xpath("/html/body/div[3]/div/main/div[2]/div[2]/form/fieldset/div[8]/div[1]/div[4]/div/div/label").click()
-    driver.find_element_by_xpath("/html/body/div[3]/div/main/div[2]/div[2]/form/div/button").click()
-    sleep(2)
-    i = 0
-    for element in plate:
-        driver.find_element_by_id("plateChar" + str(i)).send_keys(element)
-        i += 1
-    driver.find_element_by_xpath("/html/body/div[3]/div/main/div[2]/div[2]/form/div[2]/button").click()
-    sleep(2)
-    try:
-        if (driver.find_element_by_xpath("/html/body/div[3]/div/main/div[2]/div[2]/div[1]/div[2]")):
-            print("")
-            return False
-    except:
-        pass
-    try:
-        if ("502 ERROR" in driver.find_element_by_xpath("/html/body/h1").text):
-            check(plate)
-    except:
-        pass
-    try:
-        if(driver.find_element_by_xpath("/html/body/div[3]/div/main/div[2]/div[2]/form/div[1]/dl/dd[1]/div/img")):
-            print("AVAILABLE!")
-            return True
-    except:
-        pass
+    if len(plate) < 2:
+        print("License plate must be greater than 2 characters!")
+        return False
+    elif not plate.isalnum():
+        print("Your license plate cannot have special characters!")
+        return False
+    elif len(plate) > 7:
+        print("Your license plate cannot be greater than 7 characters!")
+        return False
+    elif "0" in plate:
+        print("Your license plate cannot contain '0'")
+        return False
+    
+    print(plate, end=" ")
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        # 'Accept-Encoding': 'gzip, deflate, br',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Origin': 'https://www.dmv.ca.gov',
+        'Connection': 'keep-alive',
+        'Referer': 'https://www.dmv.ca.gov/wasapp/ipp2/initPers.do',
+        # 'Cookie': 'dtCookie=v_4_srv_4_sn_717F648FF69AA3C945500F0F28EEFEB3_perc_100000_ol_0_mul_1_app-3A9f1bd2f25652a221_1_rcs-3Acss_0; rxVisitor=168783836511576LADNO1F2N4QT4SNEH9SAGH4202KMTK; dtPC=4$146991188_92h1vUFCUCQQMFMCUMUHATKKNNEWOPPFKAUFN-0e0; rxvt=1702348791191^|1702346991191; PD_STATEFUL_0531fc7e-9a22-11ea-bf4d-fa163e384dc6=^%^2Fportal; TS013cb4be=01bcbb781c1b17e1de8199cb17f4fb01e82b488ca4f0ed3f725349e58eaa6d9333df3c2d1c093beeb6b2ec7c0a0b2e6ac203c3519e; TS013cb4be028=01e2aeb03a7252d16cd9ff918131ce1c1feafb3705e367b8d9777bdeb8d070f64e1222d661700eaa0d3652cc7aa5e58275fbec17a3; JSESSIONID=0000gJysm9Tmjilry9dFsb56B-C:18u4e7ncj; PD_STATEFUL_4a158fc4-b691-11ee-a06b-028c6cad0855=^%^2Fwasapp; AWSALB=UPesIG2hPB1HqfGi42A6GV9tsqs4hvPCOz01TivuRDXZtKD70Tc8RVbHAWbOuUWD4gyjRecLFN89dmEfgcERV+AH3p/D3GNKMv8FHIYh08gpEo10mvLbZNj06e5o; AWSALBCORS=UPesIG2hPB1HqfGi42A6GV9tsqs4hvPCOz01TivuRDXZtKD70Tc8RVbHAWbOuUWD4gyjRecLFN89dmEfgcERV+AH3p/D3GNKMv8FHIYh08gpEo10mvLbZNj06e5o; _gcl_au=1.1.1758457133.1706504907; iv_user=unauthorized; timeFormStarted=1706504917214; PD_STATEFUL_cf8518ca-b68f-11ee-8b0d-02f51ccdf669=^%^2Fwasapp',
+        'Upgrade-Insecure-Requests': '1',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'same-origin',
+        'Sec-Fetch-User': '?1',
+        'Sec-GPC': '1',
+        # Requests doesn't support trailers
+        # 'TE': 'trailers',
+    }
 
-file2 = open('availablenames.txt', 'a')
+    data = {
+        'acknowledged': 'true',
+        '_acknowledged': 'on',
+    }
+
+    sesh = requests.Session()
+
+    # init pers
+    sesh.get('https://www.dmv.ca.gov/wasapp/ipp2/initPers.do', headers=headers)
+
+    # start pers
+    sesh.post('https://www.dmv.ca.gov/wasapp/ipp2/startPers.do', headers=headers, data=data)
+
+    # process pers
+    data = {
+        'imageSelected': 'none',
+        'vehicleType': 'AUTO',
+        'licPlateReplaced': '7JBY486',
+        'last3Vin': '201',
+        'isRegExpire60': 'no',
+        'isVehLeased': 'no',
+        'plateType': 'Z',
+    }
+    sesh.post('https://www.dmv.ca.gov/wasapp/ipp2/processPers.do', headers=headers, data=data)
+
+    # get plate
+    plate = sesh.post('https://www.dmv.ca.gov/wasapp/ipp2/processConfigPlate.do', headers=headers, data=processPlate(plate))
+
+    soup = BeautifulSoup(plate.text,"html.parser")
+    image = genPlateImage(plate)
+
+    if "Order Verification & Owner Information" and "License Plate's Meaning" in soup.text:
+        print("- AVAILABLE",image)
+        return True
+    elif "The license plate number you have selected is no longer available. Please try another plate number." in soup.text:
+        print("- TAKEN")
+        return False
+    elif "The Special Interest License Plate Internet Ordering System is currently unavailable." in soup.text:
+        print("- SYSTEM IS DOWN")
+        return False
+    elif "Your license plate request contains invalid characters" in soup.text:
+        print("- INVALID CHARACTERS")
+        return False
+
+file2 = open('availableNames.txt', 'a')
 file2.write("--------------------------\n")
 file2.close()
-file1 = open('names.txt', 'r')
+file1 = open('checkThese.txt', 'r')
 
 count = 0
  
 print("Now checking license plates ...")
 
 for line in file1:
-    file2 = open('availablenames.txt', 'a')
+    file2 = open('availableNames.txt', 'a')
     count += 1
     print(line.strip(), end = "\t")
     try:
-        if(check(line.strip())):
+        if (isAvailable(line.strip())):
             file2.write(line.strip() + "\n")
     except:
         pass
 
- 
 # Closing files 
 file1.close()
-print(" >> fin")
+print("Finished!")
